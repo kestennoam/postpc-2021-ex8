@@ -9,6 +9,7 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.example.postpc_noamk_ex8.models.CalculationRootsNumber;
+import com.google.gson.Gson;
 
 public class CalculateRootsWorker extends Worker {
     private static final long DEFAULT_NUMBER = 0;
@@ -20,7 +21,18 @@ public class CalculateRootsWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
+        String calculationId = getInputData().getString("number_to_calculate");
+        if (calculationId == null || calculationId.equals("")) {
+            Log.e("CalculationRoots", "error with calculation id ");
+            return Result.failure();
+        }
+
+
+
+
         final long numberToCalculateRootsFor = getInputData().getLong("number_to_calculate", 0);
+
+
         CalculationRootsNumber number = new CalculationRootsNumber(numberToCalculateRootsFor);
 
         // non-positive
