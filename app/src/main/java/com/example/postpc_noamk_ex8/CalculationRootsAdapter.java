@@ -1,5 +1,7 @@
 package com.example.postpc_noamk_ex8;
 
+import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +31,7 @@ public class CalculationRootsAdapter extends RecyclerView.Adapter<CalculationRoo
     }
 
     // to be called by activity when new sandwiches received from DB
-    public void setNewSandwiches(List<CalculationRootsNumber> newNumber) {
+    public void setNewCalculations(List<CalculationRootsNumber> newNumber) {
         numbers.clear();
         numbers.addAll(newNumber);
         notifyDataSetChanged();
@@ -42,35 +44,48 @@ public class CalculationRootsAdapter extends RecyclerView.Adapter<CalculationRoo
     @NonNull
     @Override
     public CalculationRootsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // 1. inflate xml file to create view
-        LayoutInflater inflater = LayoutInflater.from(parent.getContext()); // converting xml to views
-        // todo write xml
-//        View view = inflater.inflate(R.id.item_sandwich, parent, false);
-        // 2. create a new view holder and pass the view to the constructor
-//        return new SandwichViewHolder(view);
-
-        return null;
-
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.calculation_roots_item, parent, false);
+        return new CalculationRootsViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull CalculationRootsViewHolder holder, int position) {
-        // present id of sandwich
-        CalculationRootsNumber currentSandwich = numbers.get(position);
-        holder.textView.setText(currentSandwich.toString());
+        if (position < 0 || position >= numbers.size()) {
+            Log.e("CalculationRootsAdapter", "invalid pos: " + position);
+            return;
+        }
+        CalculationRootsNumber calculation = numbers.get(position);
+        holder.setDoneProgress((int) calculation.getNumber());
 
-        holder.rootView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 2 options: 1)
-                // 1) delete when click
-//                database.delete(currentSandwich.toString()); // todo change from currentSandwich.tostring
-                // 2)
-                if (listenerToClicks != null) {
-                    listenerToClicks.onItemClick(currentSandwich);
-                }
+        // delete view
+        holder.deleteView.setOnClickListener(v -> {
+            Log.d("Adapter", "Delete button was clicked.");
+            if (listenerToClicks != null) {
+                listenerToClicks.onItemClick(calculation);
+            } else {
+                Log.d("Adapter", "Error with adapter when delete pressed");
             }
         });
+
+        // cancel view
+        holder.cancelView.setOnClickListener(v -> {
+            Log.d("Adapter", "Cancel button was clicked.");
+            if (listenerToClicks != null) {
+                listenerToClicks.onItemClick(calculation);
+            } else {
+                Log.d("Adapter", "Error with adapter when cancel pressed");
+            }
+        });
+
+        // holder progress
+        if (calculation.isDone()) {
+            holder.setCalculationInDone(calculation);
+        } else {
+            holder.setCalculationInProgressMode(calculation);
+        }
+
+        Database.getInstance().getCalculationsLiveDataInProgress(calculation.getId()).observeForever(holder::updateProgress);
+
     }
 
     @Override

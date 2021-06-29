@@ -1,6 +1,7 @@
 package com.example.postpc_noamk_ex8.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.WorkManager;
 
 import android.os.Bundle;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
         // set data members
         db = Database.getInstance();
         adapter = new CalculationRootsAdapter(db);
+
 
 
 

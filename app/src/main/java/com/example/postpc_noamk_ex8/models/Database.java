@@ -72,6 +72,8 @@ public class Database {
     }
 
 
+
+
     // getters
     public CalculationRootsNumber getCalculation(String calulationId) {
         if (!calculations.containsKey(calulationId)) {
@@ -81,6 +83,13 @@ public class Database {
         return calculations.get(calulationId);
     }
 
+    public LiveData<Integer> getCalculationsLiveDataInProgress(String calculcationId) {
+        if (!calculationsInProgress.containsKey(calculcationId)) {
+            Log.e(Database.class.toString(), "livedata in progress doesn't exist");
+            return null;
+        }
+        return calculationsInProgress.get(calculcationId);
+    }
 
     public LiveData<List<CalculationRootsNumber>> getCalculationsLiveData() {
         return mutableLiveData;
