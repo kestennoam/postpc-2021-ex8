@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Database {
@@ -38,6 +39,7 @@ public class Database {
 
         if (!calculations.containsKey(calculationId)) {
             Log.d(Database.class.toString(), String.format("Calculation: %s doesn't exist", calculationId));
+            return;
         }
         CalculationRootsNumber deleted = calculations.remove(calculationId);
         calculationsInProgress.remove(calculationId);
@@ -47,6 +49,7 @@ public class Database {
     public void add(CalculationRootsNumber calculation) {
         if (calculation == null || calculation.getId() == null) {
             Log.d(Database.class.toString(), "Error while trying to add null");
+            return;
         }
         calculations.put(calculation.getId(), calculation);
         calculationsInProgress.put(calculation.getId(), new MutableLiveData<>(0));
@@ -56,7 +59,9 @@ public class Database {
     public void edit(CalculationRootsNumber calculation) {
         if (calculation == null || calculation.getId() == null) {
             Log.d(Database.class.toString(), "Error while trying to edit");
+            return;
         }
+        System.out.println(calculation);
         calculations.put(calculation.getId(), calculation);
         Log.d(Database.class.toString(), String.format("Calculation: (%s) edited successfully", calculation.getNumber()));
     }
@@ -68,7 +73,8 @@ public class Database {
             Log.e(Database.class.toString(), String.format("Calculation: %s doesn't exist", calculationId));
             return;
         }
-        calculationsInProgress.get(calculationId).setValue((int) progress);
+        Log.d("DB/editProgressStatus" , "progress: " + progress);
+        Objects.requireNonNull(calculationsInProgress.get(calculationId)).setValue((int) progress);
     }
 
 

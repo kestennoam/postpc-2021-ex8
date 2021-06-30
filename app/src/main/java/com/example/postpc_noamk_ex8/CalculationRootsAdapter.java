@@ -1,19 +1,23 @@
 package com.example.postpc_noamk_ex8;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.work.WorkManager;
 
 import com.example.postpc_noamk_ex8.models.CalculationRootsNumber;
 import com.example.postpc_noamk_ex8.models.Database;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
 /**
@@ -74,6 +78,10 @@ public class CalculationRootsAdapter extends RecyclerView.Adapter<CalculationRoo
                 listenerToClicks.onItemClick(calculation);
             } else {
                 Log.d("Adapter", "Error with adapter when cancel pressed");
+                if (!calculation.isDone()) {
+                    System.out.println(calculation.getId());
+                    WorkManager.getInstance().cancelWorkById(UUID.fromString(calculation.getWorkId()));
+                }
             }
         });
 
@@ -86,6 +94,18 @@ public class CalculationRootsAdapter extends RecyclerView.Adapter<CalculationRoo
 
         Database.getInstance().getCalculationsLiveDataInProgress(calculation.getId()).observeForever(holder::updateProgress);
 
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void update() {
+        List<CalculationRootsNumber> list = db.getAllCalculations();
+        list.sort((c1, c2) -> {
+            if (c1.isDone() != c2.isDone()) {
+                return (!c1.isDone()) ? -1 : 1;
+            }
+            return Long.compare(c1.getNumber(), c2.getNumber());
+        });
+        setNewCalculations(list);
     }
 
     @Override

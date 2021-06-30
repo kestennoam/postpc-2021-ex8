@@ -47,7 +47,6 @@ public class CalculationRootsViewHolder extends RecyclerView.ViewHolder {
         cancelView.setVisibility(cancelVisibility);
     }
 
-    @SuppressLint("DefaultLocale")
     public void setCalculationInProgressMode(CalculationRootsNumber calculation) {
         textView.setText(String.format("Calculating Roots for %d", calculation.getNumber()));
         setDeleteOrCancel(true);
@@ -55,8 +54,14 @@ public class CalculationRootsViewHolder extends RecyclerView.ViewHolder {
 
     public void setCalculationInDone(CalculationRootsNumber calculation) {
         setDeleteOrCancel(false);
-        @SuppressLint("DefaultLocale") String text = (!calculation.isPrime()) ?
-                String.format("Number %d has roots: root1: %d, root2: %d", calculation.getNumber(), calculation.getRoot1(), calculation.getRoot2()) :
+        String text = (!calculation.isPrime()) ?
+                String.format("Number %d has roots:\n root1: %d, root2: %d", calculation.getNumber(), calculation.getRoot1(), calculation.getRoot2()) :
                 String.format("Number %d is prime", calculation.getNumber());
+        textView.setText(text);
+    }
+
+    public void setCalculationInFailure(CalculationRootsNumber calculation) {
+        setDeleteOrCancel(false);
+        textView.setText(String.format("Number %d had failure while calculating roots", calculation.getNumber()));
     }
 }

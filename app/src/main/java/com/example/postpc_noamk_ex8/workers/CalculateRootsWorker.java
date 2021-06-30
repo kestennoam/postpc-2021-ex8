@@ -21,58 +21,62 @@ public class CalculateRootsWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
+        Log.d("CalculationRoots", "Start work ");
+
         String calculationId = getInputData().getString("number_to_calculate");
+
         if (calculationId == null || calculationId.equals("")) {
             Log.e("CalculationRoots", "error with calculation id ");
             return Result.failure();
         }
 
+        CalculationRootsNumber number = new Gson().fromJson(calculationId, CalculationRootsNumber.class);
 
-
-
-        final long numberToCalculateRootsFor = getInputData().getLong("number_to_calculate", 0);
-
-
-        CalculationRootsNumber number = new CalculationRootsNumber(numberToCalculateRootsFor);
 
         // non-positive
-        if (numberToCalculateRootsFor <= 0) {
-            Log.e("CalculateRootsService", "can't calculate roots for non-positive input" + numberToCalculateRootsFor);
-            //todo complete
+        if (number.getNumber() <= 0) {
+            Log.e("CalculateRootsService", "can't calculate roots for non-positive input" + number);
+            return Result.failure();
         }
 
         // 2
-        if (numberToCalculateRootsFor == 2) {
-            //todo complete
+        if (number.getNumber() == 2) {
+            number.setToPrime();
+            Log.d("CalculateRootsService", "number is 2");
         }
 
         // even
-        else if (numberToCalculateRootsFor % 2 == 0) {
-            //todo complete
-        }
+        else if (number.getNumber() % 2 == 0) {
+            number.setToNotPrime(number.getNumber() / 2, 2);
+            Log.d("CalculateRootsService", "number is even, number: " + number);
+        } else {
+            // calculating roots (enough until square without even numbers)
+            for (long i = 3; i <= Math.sqrt(number.getNumber()); i += 2) {
+                Log.d("CalculateRootsWorker", "i = " + i);
+                setProgressAsync(new Data.Builder()
+                        .putLong("progress", i * i)
+                        .build());
+                // check if dividing number
+                if (number.getNumber() % i == 0) {
 
-        // calculating roots (enough until square without even numbers)
-        for (long i = 3; i <= Math.sqrt(numberToCalculateRootsFor); i += 2) {
-            // check if dividing number
-            if (numberToCalculateRootsFor % i == 0) {
-                System.out.println("has roots");
-                // todo complete
+                    number.setToNotPrime(number.getNumber() / i, i);
+                    Log.d("CalculateRootsService", "number has roots, number: " + number +
+                            "  root1: " + (number.getNumber() / i) + " root2: " + i);
+                    break;
+                }
+            }
 
+            Log.d("CalculateRootsService", "Check " + number);
+            // prime number
+            if (number.getRoot1() == 0) {
+                number.setToPrime();
+                Log.d("CalculateRootsService", "number is prime, number: " + number);
             }
         }
 
-        // prime number
-        //todo complete
-
-
-        return Result.success(
-                new Data.Builder()
-                        .putLong("original_number", number.getNumber())
-                        .putBoolean("is_prime", number.isPrime())
-                        .putLong("root1", number.getRoot1())
-                        .putLong("root2", number.getRoot2())
-                        .build()
-        );
+        return Result.success(new Data.Builder()
+                .putString("number_to_calculate", new Gson().toJson(number))
+                .build());
     }
 
 }

@@ -1,6 +1,7 @@
 package com.example.postpc_noamk_ex8.models;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 public class CalculationRootsNumber implements Serializable {
@@ -10,10 +11,37 @@ public class CalculationRootsNumber implements Serializable {
     private long root1;
     private long root2;
     private boolean isDone;
+    private String workId;
 
     public CalculationRootsNumber(long number) {
         this.id = UUID.randomUUID().toString();
         this.number = number;
+    }
+
+    @Override
+    public String toString() {
+        return "CalculationRootsNumber{" +
+                "id='" + id + '\'' +
+                ", number=" + number +
+                ", isPrime=" + isPrime +
+                ", root1=" + root1 +
+                ", root2=" + root2 +
+                ", isDone=" + isDone +
+                ", workId='" + workId + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CalculationRootsNumber that = (CalculationRootsNumber) o;
+        return id.equals(((CalculationRootsNumber) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, number, isPrime, root1, root2, isDone);
     }
 
     public long getNumber() {
@@ -65,5 +93,21 @@ public class CalculationRootsNumber implements Serializable {
         isPrime = false;
         this.root1 = root1;
         this.root2 = root2;
+    }
+
+    public void setToPrime(){
+        isDone = true;
+        isPrime = true;
+        root1 = number;
+        root2 = 1;
+
+    }
+
+    public String getWorkId() {
+        return workId;
+    }
+
+    public void setWorkId(String workId) {
+        this.workId = workId;
     }
 }
