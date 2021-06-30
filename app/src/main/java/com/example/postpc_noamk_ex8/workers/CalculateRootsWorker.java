@@ -52,7 +52,6 @@ public class CalculateRootsWorker extends Worker {
         } else {
             // calculating roots (enough until square without even numbers)
             for (long i = 3; i <= Math.sqrt(number.getNumber()); i += 2) {
-                Log.d("CalculateRootsWorker", "i = " + i);
                 setProgressAsync(new Data.Builder()
                         .putLong("progress", i * i)
                         .build());
