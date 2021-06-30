@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         // set data members
         db = Database.getInstance();
         workManager = WorkManager.getInstance(this);
-        adapter = new CalculationRootsAdapter(db);
+        adapter = new CalculationRootsAdapter(db, workManager);
         editText = findViewById(R.id.calculation_edit_text);
         fab = findViewById(R.id.add_fab);
         fab.setEnabled(false);
@@ -81,6 +81,11 @@ public class MainActivity extends AppCompatActivity {
 
         // set click to listeners
         adapter.setListenerToClicks(calculation -> {
+            if (!calculation.isDone()) {
+                System.out.println(calculation.getId());
+                workManager.cancelWorkById(UUID.fromString(calculation.getWorkId()));
+            }
+
             db.delete(calculation.getId());
             adapter.setNewCalculations(db.getAllCalculations());
             adapter.notifyDataSetChanged();
@@ -121,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
             public void onChanged(WorkInfo workInfo) {
                 if (workInfo != null) {
                     WorkInfo.State state = workInfo.getState();
+                    Log.d("mainAcitivituy", "state is: " + state.toString());
                     long progress = calculation.getNumber();
 
                     if (state == WorkInfo.State.SUCCEEDED) {
@@ -130,7 +136,10 @@ public class MainActivity extends AppCompatActivity {
                     } else if (state == WorkInfo.State.RUNNING) {
                         progress = workInfo.getProgress().getLong("progress", -1);
                         Log.d("Main Activity", "progress " + progress + "/" + calculation.getNumber());
+                    } else if (state == WorkInfo.State.CANCELLED){
+                        return;
                     }
+
                     progress = (progress != -1) ? progress : 0;
                     db.editProgressStatus(calculation.getId(), progress);
                     adapter.notifyDataSetChanged();

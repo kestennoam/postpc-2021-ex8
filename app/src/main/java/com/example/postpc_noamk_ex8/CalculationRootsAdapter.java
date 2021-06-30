@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.WorkManager;
 
@@ -28,10 +29,12 @@ import java.util.UUID;
 public class CalculationRootsAdapter extends RecyclerView.Adapter<CalculationRootsViewHolder> {
     private List<CalculationRootsNumber> numbers = new ArrayList<>();
     private Database db;
+    private final WorkManager workManager;
     private AdapterClickListener listenerToClicks = null;
 
-    public CalculationRootsAdapter(Database database) {
+    public CalculationRootsAdapter(Database database, WorkManager workManager) {
         this.db = database;
+        this.workManager = workManager;
     }
 
     // to be called by activity when new sandwiches received from DB
@@ -76,13 +79,15 @@ public class CalculationRootsAdapter extends RecyclerView.Adapter<CalculationRoo
             Log.d("Adapter", "Cancel button was clicked.");
             if (listenerToClicks != null) {
                 listenerToClicks.onItemClick(calculation);
+//                if (!calculation.isDone()) {
+//                    System.out.println(calculation.getId());
+//                    workManager.cancelWorkById(UUID.fromString(calculation.getWorkId()));
+//                    db.delete(calculation.getId());
+//                }
             } else {
                 Log.d("Adapter", "Error with adapter when cancel pressed");
-                if (!calculation.isDone()) {
-                    System.out.println(calculation.getId());
-                    WorkManager.getInstance().cancelWorkById(UUID.fromString(calculation.getWorkId()));
-                }
             }
+            notifyItemRemoved(holder.getLayoutPosition());
         });
 
         // holder progress
@@ -92,7 +97,10 @@ public class CalculationRootsAdapter extends RecyclerView.Adapter<CalculationRoo
             holder.setCalculationInProgressMode(calculation);
         }
 
-        Database.getInstance().getCalculationsLiveDataInProgress(calculation.getId()).observeForever(holder::updateProgress);
+        LiveData<Integer> calculationsLiveDataInProgress = db.getCalculationsLiveDataInProgress(calculation.getId());
+        if (calculationsLiveDataInProgress != null) {
+            calculationsLiveDataInProgress.observeForever(holder::updateProgress);
+        }
 
     }
 
@@ -111,5 +119,9 @@ public class CalculationRootsAdapter extends RecyclerView.Adapter<CalculationRoo
     @Override
     public int getItemCount() {
         return numbers.size();
+    }
+
+    public WorkManager getWorkManager() {
+        return workManager;
     }
 }

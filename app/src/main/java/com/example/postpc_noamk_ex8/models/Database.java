@@ -38,7 +38,7 @@ public class Database {
     public void delete(String calculationId) {
 
         if (!calculations.containsKey(calculationId)) {
-            Log.d(Database.class.toString(), String.format("Calculation: %s doesn't exist", calculationId));
+            Log.d(Database.class.toString(), String.format("Calculation delete: %s doesn't exist", calculationId));
             return;
         }
         CalculationRootsNumber deleted = calculations.remove(calculationId);
@@ -70,7 +70,7 @@ public class Database {
     // edit
     public void editProgressStatus(String calculationId, long progress) {
         if (!calculationsInProgress.containsKey(calculationId)) {
-            Log.e(Database.class.toString(), String.format("Calculation: %s doesn't exist", calculationId));
+            Log.e(Database.class.toString(), String.format("Calculation edit: %s doesn't exist", calculationId));
             return;
         }
         Log.d("DB/editProgressStatus" , "progress: " + progress);
@@ -83,7 +83,7 @@ public class Database {
     // getters
     public CalculationRootsNumber getCalculation(String calulationId) {
         if (!calculations.containsKey(calulationId)) {
-            Log.d(Database.class.toString(), "calculatio nid doesn't exist");
+            Log.d(Database.class.toString(), "calculation id doesn't exist");
             return null;
         }
         return calculations.get(calulationId);
